@@ -61,6 +61,7 @@ def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness):
 
 def isSolutionFound(population):
 
+    found_res=False
     optimalSolution=""
 
     for i in length:
@@ -68,9 +69,9 @@ def isSolutionFound(population):
 
     for candidate in population:
         if candidate==optimalSolution:
-            return True        
+           found_res = True        
 
-    return False
+    return found_res
 
 def iterate(isUniformCrossover,fitness):
     population=generateInitialPopulation.generateInitialPopulation(length=length,populationSize=populationSize)
