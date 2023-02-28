@@ -8,6 +8,8 @@ length=6
 populationSize=20
 population=generateInitialPopulation.generateInitialPopulation(length,populationSize)
 iterations=20
+isUniformCrossover=1
+fitness=0
 
 #test commit
 
@@ -42,6 +44,7 @@ def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness):
 
 def isSolutionFound(population):
     return False
+
 def iterate(isUniformCrossover,fitness):
     population=generateInitialPopulation.generateInitialPopulation(length=length,populationSize=populationSize)
     counter=0
@@ -59,7 +62,7 @@ def iterate(isUniformCrossover,fitness):
             return
     return population
 
-finalPop=iterate(1)
+finalPop=iterate(isUniformCrossover,fitness)
 print(finalPop)
 
 

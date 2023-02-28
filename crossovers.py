@@ -12,6 +12,7 @@ def uniformCrossover(firstParent, secondParent, lenght):
            firstChild+=str(secondParent[i])
            secondChild+=(firstParent[i])
     return (firstChild,secondChild)
+
 def twoPointCrossover(firstParent, secondParent, length):
     firstPoint = numpy.random.randint(0,length)
     secondPoint=numpy.random.randint(0,length)
