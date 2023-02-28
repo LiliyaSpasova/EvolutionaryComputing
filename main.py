@@ -9,6 +9,9 @@ populationSize=20
 population=generateInitialPopulation.generateInitialPopulation(length,populationSize)
 iterations=20
 
+#test commit
+
+
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
 
 def getBestMembers (contendors, fitness):
