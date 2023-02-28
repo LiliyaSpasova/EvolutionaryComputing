@@ -6,13 +6,11 @@ import fitnesses
 
 length=6
 populationSize=20
-population=generateInitialPopulation.generateInitialPopulation(length,populationSize)
 iterations=20
 isUniformCrossover=1
 fitness=0
 
 #test commit
-
 
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
 def areChildrenGettingBetter(sortedCompetition):
@@ -29,7 +27,7 @@ def getBestMembers (contendors, fitness):
             competition.append((fitnesses.calcFitnessDeceptiveTrap(cont),isChild,cont))
         # we sort it first based on fitness and then based on whether or not is a child, and then reutrn the firts two elements
     sortedCompetition = sorted(competition,reverse=True)
-    areChildrenGettingBetter()
+    areChildrenGettingBetter(sortedCompetition)
     return  (sortedCompetition[0][2],sortedCompetition[1][2])
 
 def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness):
