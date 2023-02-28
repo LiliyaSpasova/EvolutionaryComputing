@@ -8,7 +8,7 @@ def countOnes(member):
 def calcFitnessOnes(member):
    return countOnes(member)
 
-def calcFitnessTrap(member,isTightlyLinked,k=4,d=1,):
+def calcFitnessTrap(member,isTightlyLinked,k=4,d=1):
     if isTightlyLinked:
        divided=division.divideSequentially(member)
     else:

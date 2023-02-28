@@ -1,4 +1,21 @@
 def divideSequentially(member):
-    return
+    couter=0
+    divided=[]
+    temp=""
+    for i in member:
+        temp+=i
+        if couter==3:
+            divided.append(temp)
+            temp=""
+            couter=-1
+        couter+=1
+    return divided
 def divideNonSequtially(member):
-    return 
+    lenght=len(member)/4
+    divided=[''] * int(lenght)
+    counter=0
+    for i in member:
+        val=counter%10
+        divided[val]+=i
+        counter+=1
+    return divided
