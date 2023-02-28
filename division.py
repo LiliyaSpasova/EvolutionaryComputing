@@ -15,7 +15,7 @@ def divideNonSequtially(member):
     divided=[''] * int(lenght)
     counter=0
     for i in member:
-        val=counter%10
+        val=int(counter%lenght)
         divided[val]+=i
         counter+=1
     return divided
