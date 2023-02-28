@@ -4,21 +4,30 @@ import numpy
 import random
 import fitnesses
 import time
+import matplotlib.pyplot as plt
 
 length=40
-populationSize=40
-isUniformCrossover=True
-isTighlyLinked=False
-fitness=0
-iterations=20
+populationSize=240
+isUniformCrossover=False
+isTighlyLinked=True
+fitness=1
+dataForOnesPlot=[]
+hexadecimal_alphabets = '0123456789ABCDEF'
+fitnessCalculations=[]
+iterationsCount=[]
+colors = ["#" + ''.join([random.choice(hexadecimal_alphabets) for j in range(6)]) for i in range(20)]
 
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
-
+def countOnesInPopulation(population):
+    res=0
+    for p in population:
+        res+=fitnesses.calcFitnessOnes(p)
+    return res
 def areChildrenGettingBetter(sortedCompetition):
     minFitnessOfParents = 500000
     maxFitnessOfChildren = -1
 
-    for (fitness,ischild,member) in sortedCompetition:
+    for (fitness,ischild,_) in sortedCompetition:
         if fitness<=minFitnessOfParents and ischild==0:
             minFitnessOfParents=fitness
         
@@ -36,7 +45,7 @@ def getBestMembers (contendors, fitness,isTighlyLinked):
         elif fitness==1:
             competition.append((fitnesses.calcFitnessTrap(cont,isTighlyLinked),isChild,cont))
         elif fitness==2:
-            competition.append((fitnesses.calcFitnessDeceptiveTrap(cont),isChild,cont,isTighlyLinked))
+            competition.append((fitnesses.calcFitnessDeceptiveTrap(cont,isTighlyLinked),isChild,cont))
         # we sort it first based on fitness and then based on whether or not is a child, and then reutrn the firts two elements
     sortedCompetition = sorted(competition,reverse=True)
     areChildrenBetter=areChildrenGettingBetter(sortedCompetition)
@@ -69,7 +78,9 @@ def isSolutionFound(population):
 
     return found_res
 
-def iterate(isUniformCrossover,fitness,isTighlyLinked):
+def iterate(isUniformCrossover,fitness,isTighlyLinked):    
+    dataForOnesPlotX=[]
+    dataForOnesPlotY=[]
     population=generateInitialPopulation.generateInitialPopulation(length=length,populationSize=populationSize)
     counter=0
     countIterations=0
@@ -85,16 +96,26 @@ def iterate(isUniformCrossover,fitness,isTighlyLinked):
             areBetter=ancestors[2]
             if areBetter :
                 areBetterForGeneration=True
+        dataForOnesPlotX.append(countIterations)
+        dataForOnesPlotY.append(countOnesInPopulation(population)/(populationSize*length))
         population=newPopulation
         if areBetterForGeneration:
             counter=0 
         else:
             counter+=1
         countIterations+=1
+        
         if isSolutionFound(population):
+            dataForOnesPlot.append((dataForOnesPlotX,dataForOnesPlotY))
+            dataForOnesPlotX=[]
+            dataForOnesPlotY=[]
             return (True,countIterations)
         if counter==10:
+            dataForOnesPlot.append((dataForOnesPlotX,dataForOnesPlotY))
+            dataForOnesPlotX=[]
+            dataForOnesPlotY=[]
             return (False,countIterations)
+        
 
 def main ():
     successes=0
@@ -104,14 +125,23 @@ def main ():
         res=iterate(isUniformCrossover,fitness,isTighlyLinked)
         if res[0]:
             successes+=1
-            allIterations+=res[1]
-            fitnessEvals+=res[1]*populationSize*4
+        allIterations+=res[1]
+        iterationsCount.append(res[1])
+        fitnessEvals+=res[1]*populationSize*4
+        fitnessCalculations.append(res[1]*populationSize*4)
     t1 = time.time()
     totalTime = t1-t0  
     print("number of successes=",successes)
     print("average iterations=",allIterations/20)
+    print ("iterations count standard deviation=",numpy.std(iterationsCount))
     print("average fitness evaluations",fitnessEvals/20)
+    print ("fitness evals count standard deviation=",numpy.std(fitnessCalculations))
     print("total time",totalTime)
+    i=0
+    for (x,y) in dataForOnesPlot:
+        plt.plot(x,y,color=colors[i])
+        i+=1
+    plt.show()
     return successes>=19
 t0 = time.time()
 
