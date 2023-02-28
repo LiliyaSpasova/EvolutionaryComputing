@@ -11,6 +11,9 @@ iterations=20
 isUniformCrossover=1
 fitness=0
 
+#test commit
+
+
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
 def areChildrenGettingBetter(sortedCompetition):
     return False
