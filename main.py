@@ -13,8 +13,25 @@ fitness=0
 #test commit
 
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
+
 def areChildrenGettingBetter(sortedCompetition):
-    return False
+    maxFitnessOfParents = 0
+    maxFitnessOfChildren = 0
+
+    fitness_res=False
+
+    for (fitness,ischild,member) in sortedCompetition:
+        if fitness>maxFitnessOfParents and ischild==0:
+            maxFitnessOfParents=fitness
+        
+        if fitness>maxFitnessOfChildren and ischild==1:
+            maxFitnessOfChildren==fitness
+
+    if maxFitnessOfChildren>maxFitnessOfParents:
+        fitness_res=True
+
+    return fitness_res
+
 def getBestMembers (contendors, fitness):
     # we make tuples with 3 elements and add them to a list (fitness,isChild,and the member itself)
     competition=[]
@@ -43,6 +60,16 @@ def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness):
     return getBestMembers(contendors,fitness)
 
 def isSolutionFound(population):
+
+    optimalSolution=""
+
+    for i in length:
+        optimalSolution+="1"
+
+    for candidate in population:
+        if candidate==optimalSolution:
+            return True        
+
     return False
 
 def iterate(isUniformCrossover,fitness):
