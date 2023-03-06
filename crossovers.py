@@ -1,5 +1,5 @@
 import numpy
-
+"""
 #Correct occurs when at a position i parent1[i]!=parent2[i] and child1[i]==child2[i]==1
 def countCorrect(firstParent,secondParent,firstChild,secondChild):
     correct=0
@@ -30,12 +30,12 @@ def countErrors(firstParent,secondParent,firstChild,secondChild):
             if (c==d) and (c=='0'):
                 errors+=1
     return errors
-
+"""
 def uniformCrossover(firstParent, secondParent, lenght):
     firstChild=""
     secondChild=""
-    n_correct=0
-    n_errors=0
+   # n_correct=0
+   # n_errors=0
     
     for i in range(0,lenght):
         val=numpy.random.uniform(0,1)
@@ -45,13 +45,13 @@ def uniformCrossover(firstParent, secondParent, lenght):
         else:
            firstChild+=str(secondParent[i])
            secondChild+=(firstParent[i])
-    n_correct+=countCorrect(firstParent,secondParent,firstChild,secondChild)
-    n_errors=+countErrors(firstParent,secondParent,firstChild,secondChild)
-    return (firstChild,secondChild,n_correct,n_errors)
+   # n_correct+=countCorrect(firstParent,secondParent,firstChild,secondChild)
+   # n_errors=+countErrors(firstParent,secondParent,firstChild,secondChild)
+    return (firstChild,secondChild)#,n_correct,n_errors)
 
 def twoPointCrossover(firstParent, secondParent, length):
-    n_correct=0
-    n_errors=0
+    #n_correct=0
+    #n_errors=0
     firstPoint = numpy.random.randint(0,length)
     secondPoint= numpy.random.randint(0,length+1)
     if firstPoint > secondPoint:
@@ -69,6 +69,6 @@ def twoPointCrossover(firstParent, secondParent, length):
     for i in range(secondPoint,length):
         firstChild+=(firstParent[i])
         secondChild+=(secondParent[i])
-    n_correct+=countCorrect(firstParent,secondParent,firstChild,secondChild)
-    n_errors+=countErrors(firstParent,secondParent,firstChild,secondChild)
-    return (firstChild,secondChild,n_correct,n_errors)
+   # n_correct+=countCorrect(firstParent,secondParent,firstChild,secondChild)
+    #n_errors+=countErrors(firstParent,secondParent,firstChild,secondChild)
+    return (firstChild,secondChild)#,n_correct,n_errors)

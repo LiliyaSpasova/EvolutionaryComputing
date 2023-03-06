@@ -12,14 +12,20 @@ populationSize=200
 isUniformCrossover=True
 isTighlyLinked=True
 fitness=0
-dataForOnesPlot=[]
-Iterations=20
+Iterations=1
 
-dataForSchemataPlot=[]
-hexadecimal_alphabets = '0123456789ABCDEF'
 fitnessCalculations=[]
 iterationsCount=[]
-colors = ["#" + ''.join([random.choice(hexadecimal_alphabets) for _ in range(6)]) for _ in range(20)]
+
+shouldPlot=True
+dataForOnesPlot=[]
+dataForSchemataPlot=[]
+dataForSchemataOnesFitness=[]
+dataForSchemataZerosFitness=[]
+dataForCorrectDecisionsPlot=[]
+hexadecimal_alphabets = '0123456789ABCDEF'
+colorsHex = ["#" + ''.join([random.choice(hexadecimal_alphabets) for _ in range(6)]) for _ in range(20)]
+
 optimalSolution=""
 for i in range(0,length):
     optimalSolution+="1"
@@ -35,11 +41,17 @@ def countOnesInPopulation(population):
     return res
 
 def countMembersOfSchemata(population):
+    fitnessOnes=[]
+    fitnessZeros=[]
     res=0
     for p in population:
         if(p[0]=='1'):
             res+=1
-    return res
+            fitnessOnes.append(fitnesses.calcFitnessOnes(p))
+        else:
+            fitnessZeros.append(fitnesses.calcFitnessOnes(p))
+    
+    return (res,fitnessOnes,fitnessZeros)
 
 def areChildrenGettingBetter(sortedCompetition):
     minFitnessOfParents = 500000
@@ -53,6 +65,17 @@ def areChildrenGettingBetter(sortedCompetition):
             maxFitnessOfChildren=fitness
 
     return maxFitnessOfChildren>minFitnessOfParents
+
+def getDataForDecisionPlot(firsParent,secondParent,firstWinner,secondWinner):
+    correct=0
+    errors=0
+    for (p1,p2,w1,w2) in zip (firsParent,secondParent,firstWinner,secondWinner):
+        if p1!=p2:
+            if w1=='0' and w2=='0': 
+                errors+=1
+            elif w1=='1' and w2=='1': 
+                correct+=1
+    return (correct,errors)
 
 def getBestMembers (contendors, fitness,isTighlyLinked):
     # we make tuples with 3 elements and add them to a list (fitness,isChild,and the member itself)
@@ -79,13 +102,6 @@ def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness,isT
     contendors.append((secondParent,0))
     contendors.append((children[0],1))
     contendors.append((children[1],1))
-
-    global n_errors
-    global n_correct
-
-    n_correct+=children[2]
-    n_errors+=children[3]
-
     return getBestMembers(contendors,fitness,isTighlyLinked)
 
 def isSolutionFound(population):
@@ -99,9 +115,23 @@ def isSolutionFound(population):
 def iterateWithPlots(isUniformCrossover,fitness,isTighlyLinked):    
     dataForOnesPlotX=[]
     dataForOnesPlotY=[]
+
     schemataDataX=[]
     schemataDataOne=[]
     schemataDataZero=[]
+
+    dataForDecisionsX=[]
+    dataForDecisionCorrect=[]
+    dataForDecisionInCorrect=[]
+
+    schemataOnesFitness=[]
+    schemataOnesFitnessX=[]
+    schemataOnesFitnessSD=[]
+
+    schemataZerosFitness=[]
+    schemataZerosFitnessX=[]
+    schemataZerosFitnessSD=[]
+
     population=generateInitialPopulation.generateInitialPopulation(length=length,populationSize=populationSize)
     counter=0
     countIterations=0
@@ -109,22 +139,45 @@ def iterateWithPlots(isUniformCrossover,fitness,isTighlyLinked):
         random.shuffle(population)
         newPopulation=[]
         areBetterForGeneration=False
+        correct=0
+        incorrect=0
         for i in range (0,populationSize-1,2):
             areBetter=False
             ancestors=pickAncestors(population[i],population[i+1],length,isUniformCrossover,fitness,isTighlyLinked)
             newPopulation.append(ancestors[0])
             newPopulation.append(ancestors[1])
+            decisionData=getDataForDecisionPlot(population[i],population[i+1],ancestors[0],ancestors[1])
+            correct+=decisionData[0]
+            incorrect+=decisionData[1]
             areBetter=ancestors[2]
             if areBetter :
                 areBetterForGeneration=True
+        schemataData=countMembersOfSchemata(population)
+
+        countMembersOfSchemataOne=schemataData[0]
         schemataDataX.append(countIterations)
-        countMembersOfSchemataOne=countMembersOfSchemata(population)
         schemataDataOne.append(countMembersOfSchemataOne)
         schemataDataZero.append(populationSize-countMembersOfSchemataOne)
+        
+        fitnessOnes=schemataData[1]
+        schemataOnesFitness.append(numpy.mean(fitnessOnes))
+        schemataOnesFitnessSD.append(numpy.std(fitnessOnes))
+        schemataOnesFitnessX.append(countIterations)
+
+        fitnessZeros=schemataData[2]
+        schemataZerosFitness.append(numpy.mean(fitnessZeros))
+        schemataZerosFitnessSD.append(numpy.std(fitnessZeros))
+        schemataZerosFitnessX.append(countIterations)
+
         dataForOnesPlotX.append(countIterations)
         dataForOnesPlotY.append(countOnesInPopulation(population)/(populationSize*length))
+
+        dataForDecisionsX.append(countIterations)
+        dataForDecisionCorrect.append(correct)
+        dataForDecisionInCorrect.append(incorrect)
+
         population=newPopulation
-        #TODO point 3
+        
         if areBetterForGeneration:
             counter=0 
         else:
@@ -133,20 +186,44 @@ def iterateWithPlots(isUniformCrossover,fitness,isTighlyLinked):
         if isSolutionFound(population):
             dataForOnesPlot.append((dataForOnesPlotX,dataForOnesPlotY))
             dataForSchemataPlot.append((schemataDataX,schemataDataZero,schemataDataOne))
+            dataForCorrectDecisionsPlot.append((dataForDecisionsX,dataForDecisionInCorrect,dataForDecisionCorrect))
+            dataForSchemataOnesFitness.append((schemataOnesFitnessX,schemataOnesFitness,schemataOnesFitnessSD))
+            dataForSchemataZerosFitness.append((schemataZerosFitnessX,schemataZerosFitness,schemataZerosFitnessSD))
             dataForOnesPlotX=[]
             dataForOnesPlotY=[]
             schemataDataX=[]
             schemataDataOne=[]
             schemataDataZero=[]
+            dataForDecisionsX=[]
+            dataForDecisionCorrect=[]
+            dataForDecisionInCorrect=[]
+            schemataOnesFitness=[]
+            schemataOnesFitnessSD=[]
+            schemataOnesFitnessX=[]
+            schemataZerosFitness=[]
+            schemataZerosFitnessSD=[]
+            schemataZerosFitnessX=[]
             return (True,countIterations)
         if counter==10:
             dataForOnesPlot.append((dataForOnesPlotX,dataForOnesPlotY))
             dataForSchemataPlot.append((schemataDataX,schemataDataZero,schemataDataOne))
+            dataForCorrectDecisionsPlot.append((dataForDecisionsX,dataForDecisionInCorrect,dataForDecisionCorrect))
+            dataForSchemataOnesFitness.append((schemataOnesFitnessX,schemataOnesFitness,schemataOnesFitnessSD))
+            dataForSchemataZerosFitness.append((schemataZerosFitnessX,schemataZerosFitness,schemataZerosFitnessSD))
             dataForOnesPlotX=[]
             dataForOnesPlotY=[] 
             schemataDataX=[]
             schemataDataOne=[]
             schemataDataZero=[]
+            dataForDecisionsX=[]
+            dataForDecisionCorrect=[]
+            dataForDecisionInCorrect=[]
+            schemataOnesFitness=[]
+            schemataOnesFitnessSD=[]
+            schemataOnesFitnessX=[]
+            schemataZerosFitness=[]
+            schemataZerosFitnessSD=[]
+            schemataZerosFitnessX=[]
             return (False,countIterations)
         
 def iterateWithoutPlots(isUniformCrossover,fitness,isTighlyLinked):    
@@ -182,7 +259,10 @@ def main ():
     allIterations=0
     fitnessEvals=0
     for i in range(0,Iterations):
-        res=iterateWithoutPlots(isUniformCrossover,fitness,isTighlyLinked)
+        if shouldPlot:
+            res=iterateWithPlots(isUniformCrossover,fitness,isTighlyLinked)
+        else:
+            res=iterateWithoutPlots(isUniformCrossover,fitness,isTighlyLinked)
         if res[0]:
             successes+=1
         allIterations+=res[1]
@@ -198,22 +278,59 @@ def main ():
     print ("fitness evals count standard deviation=",numpy.std(fitnessCalculations))
     print("total time",totalTime)
     i=0
-   
-    fig, (ax1, ax2,ax3) = plt.subplots(1, 3)
-    fig.suptitle('Plots')
-    for (iteartions,ones,zeros) in dataForSchemataPlot:
-        ax1.bar(iteartions, ones, width=0.3, color='red', align='edge')
-        ax1.bar(iteartions, zeros, width=0.3, color='blue', align='center')
-        break
-    for (x,y) in dataForOnesPlot:
-        ax2.plot(x,y,color=colors[i])
-        ax3.plot(x,y,color=colors[i])
-        i+=1
-    plt.show()
+    if shouldPlot:
+        fig, axs = plt.subplots(2, 3)
+
+        colors = {'zeroes':'red', 'ones':'blue'}         
+        labels = list(colors.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+        axs[0, 0].set_title("Members of schematas")
+        axs[0,0].legend(handles,labels)
+        for (iteartions,ones,zeros) in dataForSchemataPlot:
+            axs[0,0].bar(iteartions, ones, width=0.3, color='red', align='edge')
+            axs[0,0].bar(iteartions, zeros, width=0.3, color='blue', align='center')
+            break
+
+        axs[0, 1].set_title("Fitness of 0 schemata")
+        colors = {'mean':'red', 'sd':'blue'}         
+        labels = list(colors.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+        axs[0,1].legend(handles,labels)
+        for (iteartions,mean,sd) in dataForSchemataZerosFitness:
+            axs[0,1].bar(iteartions, mean, width=0.3, color='red', align='edge')
+            axs[0,1].bar(iteartions, sd, width=0.3, color='blue', align='center')
+            break
+
+        axs[0, 2].set_title("Fitness of 1 schemata")
+        colors = {'mean':'red', 'sd':'blue'}         
+        labels = list(colors.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+        axs[0,2].legend(handles,labels)
+        for (iteartions,mean,sd) in dataForSchemataOnesFitness:
+            axs[0,2].bar(iteartions, mean, width=0.3, color='red', align='edge')
+            axs[0,2].bar(iteartions, sd, width=0.3, color='blue', align='center')
+            break
+
+        colors = {'correct':'blue', 'incorrect':'red'}         
+        labels = list(colors.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+        axs[1, 1].set_title("Correct and incorrect decisions")
+        axs[1, 1].legend(handles,labels)
+        for (iteartions,incorrect,correct) in dataForCorrectDecisionsPlot:
+            axs[1,1].bar(iteartions, correct, width=0.3, color='blue', align='edge')
+            axs[1,1].bar(iteartions, incorrect, width=0.3, color='red', align='center')
+            break
+
+        axs[1, 0].set_title("Number of ones")
+        for (x,y) in dataForOnesPlot:
+            i=1
+            axs[1,0].plot(x,y,color=colorsHex[i])
+            i+=1
+        plt.show()
 
     #test code
-    print("correct = ", n_correct)
-    print("errors = ", n_errors)
+   # print("correct = ", n_correct)
+   # print("errors = ", n_errors)
 
     return successes>=19
 t0 = time.time()
