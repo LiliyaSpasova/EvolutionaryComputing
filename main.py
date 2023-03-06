@@ -24,6 +24,9 @@ optimalSolution=""
 for i in range(0,length):
     optimalSolution+="1"
 
+n_correct=0
+n_errors=0
+
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
 def countOnesInPopulation(population):
     res=0
@@ -76,6 +79,13 @@ def pickAncestors(firstParent,secondParent,length,isUniformCrossover,fitness,isT
     contendors.append((secondParent,0))
     contendors.append((children[0],1))
     contendors.append((children[1],1))
+
+    global n_errors
+    global n_correct
+
+    n_correct+=children[2]
+    n_errors+=children[3]
+
     return getBestMembers(contendors,fitness,isTighlyLinked)
 
 def isSolutionFound(population):
@@ -200,6 +210,11 @@ def main ():
         ax3.plot(x,y,color=colors[i])
         i+=1
     plt.show()
+
+    #test code
+    print("correct = ", n_correct)
+    print("errors = ", n_errors)
+
     return successes>=19
 t0 = time.time()
 
