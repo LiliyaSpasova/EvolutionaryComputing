@@ -1,5 +1,12 @@
 import numpy
 
+def countCorrect(firstParent,secondParent,firstChild,secondChild):
+    result=0
+    for (i,j,k,m) in zip(firstParent,secondParent,firstChild,secondChild):
+        if (i==0 and j==1 ) or (i==1 and j==0):
+            result +=1
+    return result
+
 def uniformCrossover(firstParent, secondParent, lenght):
     firstChild=""
     secondChild=""
@@ -11,11 +18,12 @@ def uniformCrossover(firstParent, secondParent, lenght):
         else:
            firstChild+=str(secondParent[i])
            secondChild+=(firstParent[i])
+    countCorrect(firstParent,secondParent,firstChild,secondChild)
     return (firstChild,secondChild)
 
 def twoPointCrossover(firstParent, secondParent, length):
     firstPoint = numpy.random.randint(0,length)
-    secondPoint=numpy.random.randint(0,length)
+    secondPoint= numpy.random.randint(0,length+1)
     if firstPoint > secondPoint:
         temp=firstPoint
         firstPoint=secondPoint
@@ -31,4 +39,5 @@ def twoPointCrossover(firstParent, secondParent, length):
     for i in range(secondPoint,length):
         firstChild+=(firstParent[i])
         secondChild+=(secondParent[i])
+    countCorrect(firstParent,secondParent,firstChild,secondChild)
     return (firstChild,secondChild)

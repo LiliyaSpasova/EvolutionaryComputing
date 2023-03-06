@@ -7,15 +7,15 @@ import time
 import matplotlib.pyplot as plt
 
 length=40
-populationSize=240
+populationSize=180
 isUniformCrossover=False
 isTighlyLinked=True
-fitness=1
+fitness=2
 dataForOnesPlot=[]
 hexadecimal_alphabets = '0123456789ABCDEF'
 fitnessCalculations=[]
 iterationsCount=[]
-colors = ["#" + ''.join([random.choice(hexadecimal_alphabets) for j in range(6)]) for i in range(20)]
+colors = ["#" + ''.join([random.choice(hexadecimal_alphabets) for _ in range(6)]) for _ in range(20)]
 
 # we say that counting ones i 0, trap func is 1 and, deceptive trap is 2
 def countOnesInPopulation(population):
@@ -99,6 +99,7 @@ def iterate(isUniformCrossover,fitness,isTighlyLinked):
         dataForOnesPlotX.append(countIterations)
         dataForOnesPlotY.append(countOnesInPopulation(population)/(populationSize*length))
         population=newPopulation
+        #TODO point 3
         if areBetterForGeneration:
             counter=0 
         else:
@@ -118,6 +119,9 @@ def iterate(isUniformCrossover,fitness,isTighlyLinked):
         
 
 def main ():
+  #  print("crossover",isUniformCrossover?"uniform crossover":"two point crossover")
+   # print("average iterations=",allIterations/20)
+    #print ("iterations count standard deviation=",numpy.std(iterationsCount))
     successes=0
     allIterations=0
     fitnessEvals=0
